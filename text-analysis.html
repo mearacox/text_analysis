@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Analysis Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #73000a;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .input-section {
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #73000a;
+            box-shadow: 0 0 0 3px rgba(115, 0, 10, 0.1);
+        }
+
+        .analysis-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-card:hover {
+            border-color: #4facfe;
+            background: #f0f9ff;
+            transform: translateY(-2px);
+        }
+
+        .option-card.selected {
+            border-color: #4facfe;
+            background: #f0f9ff;
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15);
+        }
+
+        .option-card input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.2);
+        }
+
+        .analyze-btn {
+            background: #73000a;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .analyze-btn:hover {
+            background: #5a0008;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(115, 0, 10, 0.3);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            margin-top: 40px;
+            display: none;
+        }
+
+        .result-card {
+            background: #f8fafc;
+            border-left: 4px solid #73000a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .result-content {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #73000a;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #73000a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        .word-frequency-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .word-freq-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .word-freq-item:last-child {
+            border-bottom: none;
+        }
+
+        .word {
+            font-weight: 600;
+            min-width: 100px;
+            color: #2d3748;
+        }
+
+        .count {
+            font-size: 0.9em;
+            color: #718096;
+            min-width: 120px;
+        }
+
+        .freq-bar {
+            flex: 1;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>USC Text Analysis Tool</h1>
+            <p>Analyze your text with University of South Carolina's text analysis platform</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="textInput">Enter your text to analyze:</label>
+                    <textarea id="textInput" rows="8" placeholder="Paste or type your text here..."></textarea>
+                </div>
+
+
+
+                <button class="analyze-btn" onclick="analyzeText()">Analyze Text</button>
+            </div>
+
+            <div id="resultsSection" class="results-section">
+                <div id="loadingDiv" class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing your text...</p>
+                </div>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function analyzeText() {
+            const text = document.getElementById('textInput').value.trim();
+
+            if (!text) {
+                alert('Please enter some text to analyze.');
+                return;
+            }
+
+            // Show results section and loading
+            const resultsSection = document.getElementById('resultsSection');
+            const loadingDiv = document.getElementById('loadingDiv');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsSection.style.display = 'block';
+            loadingDiv.style.display = 'block';
+            resultsContent.innerHTML = '';
+
+            // Disable analyze button
+            const analyzeBtn = document.querySelector('.analyze-btn');
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'Analyzing...';
+
+            try {
+                // Prepare data for your backend
+                const analysisData = {
+                    text: text
+                };
+
+                // Replace this URL with your actual backend endpoint
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(analysisData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Analysis failed');
+                }
+
+                const results = await response.json();
+                displayResults(results);
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultsContent.innerHTML = `
+                    <div class="result-card">
+                        <div class="result-title">Error</div>
+                        <div class="result-content">
+                            Sorry, there was an error analyzing your text. Please try again.
+                        </div>
+                    </div>
+                `;
+            } finally {
+                // Hide loading and re-enable button
+                loadingDiv.style.display = 'none';
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analyze Text';
+            }
+        }
+
+        function displayResults(results) {
+            const resultsContent = document.getElementById('resultsContent');
+            let html = '';
+
+            // Basic text statistics
+            const text = document.getElementById('textInput').value;
+            const words = text.toLowerCase().match(/\b\w+\b/g) || [];
+            const wordCount = words.length;
+            const charCount = text.length;
+            const sentenceCount = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+
+            html += `
+                <div class="result-card">
+                    <div class="result-title">Text Statistics</div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">${wordCount}</div>
+                            <div class="stat-label">Total Words</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${charCount}</div>
+                            <div class="stat-label">Characters</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${sentenceCount}</div>
+                            <div class="stat-label">Sentences</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Word frequency analysis
+            const wordFreq = {};
+            words.forEach(word => {
+                wordFreq[word] = (wordFreq[word] || 0) + 1;
+            });
+
+            // Sort words by frequency and get top 10
+            const sortedWords = Object.entries(wordFreq)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10);
+
+            if (sortedWords.length > 0) {
+                html += `
+                    <div class="result-card">
+                        <div class="result-title">Word Frequency (Top 10)</div>
+                        <div class="result-content">
+                            <div class="word-frequency-list">
+                `;
+                
+                sortedWords.forEach(([word, count]) => {
+                    const percentage = ((count / wordCount) * 100).toFixed(1);
+                    html += `
+                        <div class="word-freq-item">
+                            <span class="word">${word}</span>
+                            <span class="count">${count} times (${percentage}%)</span>
+                            <div class="freq-bar">
+                                <div class="freq-fill" style="width: ${(count / sortedWords[0][1]) * 100}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            resultsContent.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
