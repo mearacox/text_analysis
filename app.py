@@ -116,13 +116,13 @@ def analyze_text_content(text):
 def index():
     """Serve the text input HTML frontend"""
     try:
-        with open('text_analysis.html', 'r', encoding='utf-8') as f:
+        with open('index.html', 'r', encoding='utf-8') as f:
             html_content = f.read()
         return html_content
     except FileNotFoundError:
         return """
         <h1>Error: Frontend file not found</h1>
-        <p>Please make sure 'text_analysis.html' is in the same directory as this Python file.</p>
+        <p>Please make sure 'index.html' is in the same directory as this Python file.</p>
         <p>The file should contain your text input form.</p>
         """
 
@@ -141,7 +141,7 @@ def results_page():
 
 @app.route('/analyze', methods=['POST'])
 def analyze_text_form():
-    """Handle form submission from text_analysis.html and redirect to results"""
+    """Handle form submission from index.html and redirect to results"""
     try:
         # Get text from form data (if submitted via form)
         if request.form:
@@ -215,7 +215,7 @@ if __name__ == '__main__':
     print("API endpoint: http://localhost:5000/api/analyze")
     print("Health check: http://localhost:5000/api/health")
     print("\nMake sure you have these files in the same directory:")
-    print("- text_analysis.html (for text input)")
+    print("- index.html (for text input)")
     print("- results.html (for displaying results)")
     
     # Run the Flask app
